@@ -33,8 +33,8 @@
     grid-template-rows: repeat(15, 1fr);
     grid-gap: 2px;
     border: 2px solid #000;
-    width: 31rem;
-    height: 31rem;
+    width: 30rem;
+    height: 30rem;
     background: rgba(0, 0, 0, 0.9);
     box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
     padding: 10px;

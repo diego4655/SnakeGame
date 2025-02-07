@@ -24,7 +24,7 @@ namespace SnakeGame.Components.Resources
         // Snake speed in milliseconds
         readonly int gameInterval = 800;
 
-        // Define the food's initial position
+        // Define the food's initial position        
         int foodRow = 5;
         int foodCol = 5;
 
@@ -43,7 +43,7 @@ namespace SnakeGame.Components.Resources
         private void InitializeGame()
         {
             // Define the Snake's initial position
-            currentCell = new() { Row = 10, Col = 10 };
+            currentCell = new() { Row = 10, Col = 1 };
 
             // Initialize the snake's size to 1
             score.CurrentScore = 1;
@@ -81,10 +81,11 @@ namespace SnakeGame.Components.Resources
         private void GenerateFood()
         {
             var random = new Random();
-            foodRow = random.Next(0, 20);
-            foodCol = random.Next(0, 20);
+            foodRow = random.Next(0, GameHelper.NO_OF_ROWS);
+            foodCol = random.Next(0, GameHelper.N0_OF_COLS);
         }
 
+  
         private void ControlSnakeDirection(KeyboardEventArgs e)
         {
             snakeDirection = e.Key switch
@@ -98,7 +99,7 @@ namespace SnakeGame.Components.Resources
         }
 
         // Update Snake position based on direction
-        private void UpdateSnakeDirection()
+        private async Task UpdateSnakeDirection()
         {
             switch (snakeDirection)
             {
@@ -120,7 +121,7 @@ namespace SnakeGame.Components.Resources
             snakeBody.Insert(0, CloneSnakeCell());
 
             //Check if Game is over
-            IsGameOver();
+            await IsGameOver();
 
             // Remove the last cell (tail) to maintain the snake's size
             if (snakeBody.Count > score.CurrentScore)
@@ -142,27 +143,30 @@ namespace SnakeGame.Components.Resources
 
         private async Task IsGameOver()
         {
-            if (currentCell.Row < 0 || currentCell.Row >= 20 || currentCell.Col < 0 || currentCell.Col >= 20)
+            if (currentCell.Row <= 0 || currentCell.Row >= (GameHelper.NO_OF_ROWS+1) || currentCell.Col <= 0 || currentCell.Col >= (GameHelper.N0_OF_COLS+1))
             {
                 isGameOver = true;
-                bool isResetGame = await js.InvokeAsync<bool>("ResetGamePopup", score.CurrentScore);
+                bool isResetGame = await js.InvokeAsync<bool>("confirm", score.CurrentScore);
                 if (isResetGame)
                 {
                     if (score.CurrentScore > score.TopScore)
                     {
                         score.TopScore = score.CurrentScore;
                     }
-                    ResetGame();
+                    await ResetGame();
+                    isGameOver = false;
+                    StartTheGame();
                 }
             }
             isGameOver = false;
+            
         }
 
-        private void ResetGame()
+        private async Task ResetGame()
         {
             snakeBody.Clear();
             isGameOver = false;
-            OnInitializedAsync();
+            await OnInitializedAsync();
         }
         #endregion
 
